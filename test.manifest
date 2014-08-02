@@ -1,0 +1,8 @@
+CACHE MANIFEST
+
+CACHE:
+test.html
+js/jquery-1.7.2.min.js
+
+NETWORK:
+http://jhs.jelly9.net/offline/radar.php

@@ -1,0 +1,183 @@
+﻿<html>
+<head>
+	<script src="http://hss.weco.net/logic_hss/js/jquery-1.6.2.min.js"></script>
+	<script src="http://hss.weco.net/logic_hss/modules/Highcharts/js/highcharts.js"></script>
+	<script src="http://hss.weco.net/logic_hss/modules/Highcharts/js/modules/exporting.js"></script>
+	<link rel="stylesheet" href="css/sleeprecord_chart.css">
+	<title>An animated Radar chart</title>
+	<script>
+	function updateRecord(){
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  			xmlhttp=new XMLHttpRequest();
+  		}
+		else{// code for IE6, IE5
+  			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  		}
+		xmlhttp.onreadystatechange=function(){
+			if(xmlhttp.readyState==4 && xmlhttp.status==200){
+				localStorage.sleeprecord=xmlhttp.responseText;
+			}
+		}
+		//xmlhttp.open("GET","http://jhs.jelly9.net/offline/radar.php",true);
+		xmlhttp.open("GET","sleeprecord.php",true);
+		xmlhttp.send();
+	}
+	updateRecord();
+	</script>
+</head>
+
+<body>
+	<div id="top">
+		<p id="user_name">睡眠日誌分數</p>
+	</div>
+	<div>
+		
+		<fieldset id="aa">
+			<legend	id="records">
+				<p>睡眠分數變化</p>
+			</legend>
+			<div id="SleepScoreDIV" class="SleepScoreDIV" style="width: 99%;">
+			</div>
+		</fieldset>
+		
+		<fieldset id="radarchart">
+			<legend id="past_records">
+				<p>過去的資料</p>
+			</legend>
+			<div id="recordss">
+				<table border='1'>
+				<tr id="record_list">
+					<p> 
+					<font id='title' size='8' color='blue'>
+					<td>資料量測時間</td>
+					<td>上床睡覺時間</td>
+					<td>起床時間</td>
+					<td>總共睡了多久</td>
+					<td>SQ分數</td>
+					</font>
+					</p>
+				</tr>
+				</table>
+			</div>
+		
+		</fieldset>
+		
+		<fieldset id="new_records">
+			<legend id="record_new">
+				<p>觀看新增的記錄</p>
+			</legend>
+		</fieldset>
+	</div>
+
+	<script>
+	// Print User Name
+	if (localStorage.username != null){
+		$("#user_name").html(localStorage.username + "的" + $("#user_name").text());
+	}
+	
+	
+	if(localStorage.sleeprecord != null)
+	{
+		var obj = jQuery.parseJSON(localStorage.sleeprecord);
+		var chartDIV;
+		var score=[];
+		//畫表格
+		for(i=obj.sleeprecord.length; i>0; i--)
+		{
+			//$("#past_records").after("<button id='rid" + (i-1) + "' num='" + (i-1) + "'>" + obj.record[i-1].time + "</button>");
+			if ( obj.sleeprecord[i-1].sscore > -10000 )
+				$("#record_list").after("<tr><td>" + obj.sleeprecord[i-1].recordtime + "</td><td>" + obj.sleeprecord[i-1].bedtime + "</td><td>" + obj.sleeprecord[i-1].risetime + "</td><td>" + obj.sleeprecord[i-1].sleeplength + "</td><td>" + obj.sleeprecord[i-1].sscore + "</td><tr/>");
+			else
+				$("#record_list").after("<tr><td>" + obj.sleeprecord[i-1].recordtime + "</td><td>" + obj.sleeprecord[i-1].bedtime + "</td><td>" + obj.sleeprecord[i-1].risetime + "</td><td>" + obj.sleeprecord[i-1].sleeplength + "</td><td>-</td><tr/>");
+				
+			if (obj.sleeprecord[i-1].realrecordtime > 0)
+				score.push([obj.sleeprecord[i-1].realrecordtime*10, obj.sleeprecord[i-1].sscore]);
+		}
+		// high charts
+		jQuery(document).ready(function($){
+			if($('.rowCount').val() > 0 ){
+				var rowCount = $('.rowCount').val();
+			}
+			for (i=0;i<rowCount;i++)
+			{
+				if($('#scoreDIV'+i).val() >0){
+					score.push([$('#dateDIV'+i).val() - 0 ,$('#scoreDIV'+i).val() - 0]);
+				}
+				else{
+					score.push([$('#dateDIV'+i).val() - 0,0 - 0]);
+				}
+			}
+
+			chartDIV = new Highcharts.Chart({
+							chart: {
+								renderTo: 'SleepScoreDIV',
+								zoomType: 'x',
+								spacingRight: 20,
+								backgroundColor : "#edf4e2"
+							},
+							title: {
+								text: '您的睡眠品質分數總覽'
+							},
+							xAxis: {
+								type: 'datetime',
+								maxZoom: 31 * 24 * 3600000, // fourteen days
+								title: {
+									text: null
+								}
+							},
+							yAxis: {
+								title: {
+									text: '睡眠品質分數'
+								},
+								min: 0,
+								startOnTick: false,
+								showFirstLabel: false
+							},
+							tooltip: {
+								shared: true					
+							},
+							legend: {
+								enabled: false
+							},
+							plotOptions: {
+								area: {
+									fillColor: {
+										linearGradient: [0, 0, 0, 300],
+										stops: [
+											[0, Highcharts.getOptions().colors[0]],
+											[1, 'rgba(2,0,0,0)']
+										]
+									},
+									lineWidth: 1,
+									marker: {
+										enabled: false,
+										states: {
+											hover: {
+												enabled: true,
+												radius: 5
+											}
+										}
+									},
+									shadow: false,
+									states: {
+										hover: {
+											lineWidth: 1						
+										}
+									}
+								}
+							},
+						
+							series: [{
+								type: 'area',
+								name: '分數',
+								pointInterval: 24 * 3600 * 1000,
+								data: score
+							}]
+						});
+						
+		
+		});
+	}
+	</script>
+</body>
+</html>

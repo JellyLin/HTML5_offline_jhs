@@ -1,0 +1,20 @@
+<?php
+$link = array(
+  '#type' => 'link',
+  '#title' => t('something'),
+  '#href' => 'some/path',
+  '#ajax' => array(
+    'callback' => 'some_callback_function',
+    'wrapper' => 'ajax-response-goes-here',
+    'method' => 'replace',
+    'effect' => 'fade',
+  ),
+  // Using the onload below is entirely optional; It's just included as
+  // a reminder of an easy way to add extra simple jQuery tricks.
+  '#attributes' => array(
+   'onload' => "jQuery('something-to-hide').hide();",
+  ),
+);
+ 
+$output = "<div id='ajax-response-goes-here'></div>Some HTML and stuff" . drupal_render($link);
+?>

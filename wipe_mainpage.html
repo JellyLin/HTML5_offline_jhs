@@ -1,0 +1,427 @@
+﻿<html manifest="mainpage.manifest">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>健康邦7</title>
+	<script src="js/jquery-1.7.2.min.js" ></script>
+	<script src="js/jquery-ui-1.8.21.custom.min.js"></script>	
+	<link rel="stylesheet" href="css/skeleton.css"> 
+	<link rel="stylesheet" href="css/layout.css">
+	<link rel="stylesheet" href="css/jquery-ui-1.8.21.custom.css">
+	<!--Wipe-->
+	<script src="js/jquery.touchwipe.1.1.1.js"></script>
+	<script src="js/jquery.cycle.all.js"></script>
+
+	<!--[if IE]>
+		<script type="text/javascript" src="js/checkOfflineIE.js"> </script>
+        <![endif]-->
+	<script type="text/javascript" src="js/checkStatus.js"></script>
+	<script src="js/cookie.js"></script>
+	<script>
+		var oldResizeCount=0;
+		var newResizeCount=7;	
+		var winW = 2000; 
+		var winH = 768;
+		var preTouch = 0; // Last touched point of x-axis
+		var slideCount = 0;
+		//Resize Window
+		function resize(){
+			winW = document.body.clientWidth;;
+			screenW = window.screen.width;
+			if(online){
+				if(screenW<1300||winW<1200||(navigator.userAgent.match(/iPad/i))||(navigator.userAgent.match(/android/i)||(navigator.userAgent.match(/iPhone/i)||(navigator.userAgent.match(/iPod/i))))){
+					$("#tabs").hide();
+					$("#wrap").show();	
+				}
+				else{
+					$("#tabs").show();	
+					$("#wrap").hide();
+				}
+			}
+			else{
+				$("#tabs").hide();	
+				$("#wrap").hide();
+				$('offlineContainer').show();
+			}
+
+		} //end resize
+		
+		// wipe
+		$(function(){
+			//參數設定:
+			//wipeLeft 向左滑動
+			//wipeRight 向右滑動
+			//wipeUp 向上滑動
+			//wipeDown 向下滑動
+			//min_move_x 水平移動最小像
+			//min_move_y 垂直移動最小像素
+			/*
+			$("#imagegallery").touchwipe({
+				 wipeLeft: function() { alert("left"); },
+				 wipeRight: function() { alert("right"); },
+				 wipeUp: function() { alert("up"); },
+				 wipeDown: function() { alert("down"); },
+				 min_move_x: 20,
+				 min_move_y: 20,
+				 preventDefaultEvents: true
+			});*/
+		 
+			$('#imagegallery').cycle({
+				timeout: 0,
+				fx: 'scrollHorz',
+				fit: 1,
+				//containerResize: 1,
+				next: '#next',
+				prev: '#prev',
+				after: onAfter,
+				//before: onBefore
+			});
+			$('#imagegallery').css("width","100%");
+			
+			function onAfter(curr,next,opts) {
+				$("#mobile-introduction-1").css("height", "0").css("display","none");
+				$("#mobile-introduction-2").css("height", "0").css("display","none");
+				$("#mobile-introduction-3").css("height", "0").css("display","none");
+				$("#mobile-introduction-4").css("height", "0").css("display","none");
+				$("#mobile-introduction-5").css("height", "0").css("display","none");
+				//用regular expression沒反應  $("div[id^=#mobile-introduction-]").css("height", "0").css("display","none"); 
+				slideCount = opts.currSlide + 1; // currSlide start from zero
+				switch( slideCount ){
+					case 1: $("#mobile-introduction-1").css("height", "100%").css("display",""); break;
+					case 2: $("#mobile-introduction-2").css("height", "100%").css("display",""); break;
+					case 3: $("#mobile-introduction-3").css("height", "100%").css("display",""); break;
+					case 4: $("#mobile-introduction-4").css("height", "100%").css("display",""); break;
+					case 5: $("#mobile-introduction-5").css("height", "100%").css("display",""); break;
+				}
+			}
+			
+			$("#imagegallery").touchwipe({
+				wipeLeft: function() {
+					$("#imagegallery").cycle("next");
+				},
+				wipeRight: function() {
+					$("#imagegallery").cycle("prev");
+				}
+			});
+			
+			$("#nav").touchwipe({
+				wipeLeft: function() {
+					$("#imagegallery").cycle("next");
+				},
+				wipeRight: function() {
+					$("#imagegallery").cycle("prev");
+				}
+			});
+		})
+		
+		
+		// Load Dialog
+		$(function(){
+			//add button
+			$('#dialog').dialog(
+			{
+				autoOpen: false,
+				width: 600,
+				buttons: {
+					"註冊新帳號": function() {
+						window.open('http://jhs.weco.net/user/register');
+					}/*,
+					"Ok": function() {
+						$(this).dialog("close");
+					},
+					"Cancel": function() {
+						$(this).dialog("close");
+					}*/
+				}
+			});
+			//create
+			$('#dialog_link').click(function()
+			{
+				$('#dialog').dialog('open');
+				return false;
+			});
+			//hover effect event
+			$('#dialog_link, ul#icons li').hover(
+				function() { $(this).removeClass('ui-state-hover'); },
+				function() { $(this).addClass('ui-state-hover'); }
+			);
+		});//end Dialog
+	
+		// preload image
+		var hss_image = new Image();
+		var shs_image = new Image();
+		var fitness_image = new Image();
+		var diet_image = new Image();
+		var cognition_image = new Image();
+		hss_image.src = "images/zzz.png";
+		shs_image.src = "images/img_health.jpg";
+		fitness_image.src = "images/img_park.jpg";
+		diet_image.src = "images/img_food.jpg";
+		cognition_image.src = "images/img_book.jpg";
+
+		function checkImage(){
+			if(hss_image.complete && shs_image.complete && fitness_image.complete && diet_image.complete && cognition_image.complete){
+				document.getElementById('hss_tabs').src = hss_image.src;
+				document.getElementById('shs_tabs').src = shs_image.src;
+				document.getElementById('fitness_tabs').src = fitness_image.src;
+				document.getElementById('diet_tabs').src = diet_image.src;
+				document.getElementById('cognition_tabs').src = cognition_image.src;
+				document.getElementById('hss_wipe').src = hss_image.src;
+				document.getElementById('shs_wipe').src = shs_image.src;
+				document.getElementById('fitness_wipe').src = fitness_image.src;
+				document.getElementById('diet_wipe').src = diet_image.src;
+				document.getElementById('cognition_wipe').src = cognition_image.src;
+			}
+			else{
+				setTimeout("checkImage()", 30);
+			}
+		}
+		checkImage();
+		
+		// show, hide 功能表
+		function showform(){
+			$("#offlineContainer").show();
+			$("#hide").show();
+			$("#show").hide();
+			$(".menuTop").hide();
+		}
+		
+		function hideform(){
+			$("#offlineContainer").hide();
+			$("#hide").hide();
+			$("#show").show();
+			$(".menuTop").hide();
+		}
+
+		// check online status
+		if(navigator.onLine)
+		{
+			online=true;
+		}
+		else
+		{
+			online=false;
+		}
+
+	</script>
+</head>	
+
+<body onresize="resize()" onload="checkStatus()">
+<div class="container" id="container">
+	<div class="top ui-corner-top">
+		<div class="ff" id="ff" align="middle"> 
+			<h1>健康邦<small class="middle">Joyful Health Space</small></h1>
+		</div>
+		<div class="login_status" id="login_status">
+			<div id="userStatus"></div>
+		</div>
+		<!--Login 延用舊版首頁 -->
+		<div class="login_button ui-corner-left" id="login_button">
+			<a href="#"id="dialog_link" class="ui-state-default ui-corner-right dialog_link">登入</a>
+		<div id="dialog" title="登入">
+				<!--Login form-->
+				<form action="../node/4?destination=node/4"  accept-charset="UTF-8" method="post" id="user-login-form" name="login" > 
+					<div>
+						<div class="form-item" id="edit-name-wrapper"> 
+							<label for="edit-name">
+								<span class="gaia le lbl">使用者名稱:</span>
+								<span class="form-required" title="此欄位不可空白。">*</span>
+							</label>
+							<!--<input type="text" class="gaia le val" value="" size="18" id="Email" name="Email">-->
+							<br/>
+							<input type="text" class="gaia le val" name="name" id="edit-name" size="18" value=""/>
+							<!--<input type="text" maxlength="60" name="name" id="edit-name" size="50" value="" style="width:30%;height:35px;font-family:arial;font-size:32px" />-->
+						</div> 
+						<div class="form-item" id="edit-pass-wrapper"> 
+							<label for="edit-pass">
+								<span class="gaia le lbl">密碼:</span>
+								<span class="form-required" title="此欄位不可空白。">*</span>
+							</label> 
+							<br/>
+							<input type="password" name="pass" id="edit-pass"  size="18"/> 
+						</div> 
+						<br/>
+						<!--<input type="submit" name="op" id="edit-submit" value="登入"  class="btn large" /> -->		
+						<!--<a href="javascript:document.login.submit();" class="btn large" onclick="vibrate();"><h1>登入</h1></a>-->
+						<div class="form-item" id="edit-pass-wrapper">
+							<input type="submit" name="op" id="edit-submit" value="登入"  class="form-submit" />
+						</div>
+						<input type="hidden" name="form_build_id" id="form-3065135fc84663c1ef88db08095dc948" value="form-3065135fc84663c1ef88db08095dc948"  /> 
+						<input type="hidden" name="form_id" id="edit-user-login-block" value="user_login_block"  /> 
+						<!--<input type="hidden" name="openid.return_to" id="edit-openid.return-to" value="http://140.136.150.88/openid/authenticate?destination=node%2F80"  /> -->
+					</div>
+				</form>
+			</div>
+		</div> <!-- end login -->
+		
+	</div> <!-- end top -->
+	
+	<!--Laptop -->
+	<div id="tabs">
+		<ul><!--tablist-->		
+			<li><a href="#fragment-0"><span>簡介</span></a></li>
+			<li><a href="#fragment-1"><span>好眠居</span></a></li>
+			<li><a href="#fragment-2"><span>聚康廳</span></a></li>
+			<li><a href="#fragment-3"><span>悅動園</span></a></li>
+			<li><a href="#fragment-4"><span>膳食軒</span></a></li>
+			<li><a href="#fragment-5"><span>活腦閣</span></a></li>
+		</ul>
+		<div id="fragment-0">
+			<p>歡迎來到健康邦(J.H.S.)！</p>
+			<p>健康邦是什麼？</p>
+			<p>健康邦是一個人健康紀錄整理的測試平台，其主要目的有二：</p>
+			<p>(1)提供使用者一個紀錄身心狀況的平台；</p>
+			<p>(2)做為新興資訊技術的測試床。目前，健康邦提供五種不同類型的個人健康紀錄管理服務，讓您可以為自己做好健康的把關！</p>
+		</div>
+		<div id="fragment-1">
+			<div class="picture">
+				<a href="http://hss.weco.net">
+					<img id="hss_tabs" class="tabsImg"src="images/zzz.png">
+				</a>
+			</div>
+			<p>好眠居(Healthy Sleep Space, HSS)：</p>
+			<p>好眠居提供睡眠相關記錄與分析，使用者可以利用電腦或行動裝置記錄自己的睡眠狀況，長期的睡眠資料也能透過好眠居的平台做深入的追蹤與探討，並提供睡眠衛教資訊補充相關知識，使您夜晚能夠好眠無煩惱！</p>
+		</div>
+		<div id="fragment-2">
+			<div class="picture">
+				<a href="http://shs.weco.net">
+					<img id="shs_tabs" class="tabsImg"src="images/img_health.jpg">
+				</a>
+			</div>
+			<p>聚康廳為健康社群平台，使用者可透過本系統彼此經驗分享交流與提問。</p>
+			<p>使用者可在聚康廳 - S.H.S.記錄下個人健康服務的記錄，例如心跳、血壓等多樣記錄。健檢方面則由醫護人員記錄須經專業檢測儀器所得結果如:總膽固醇、骨質密度等，而受檢者可利用聚康廳服務進行檢測結果查詢。透過以上所提供之服務，讓使用者的生活品質大大提升，更能藉由這些資訊提供給醫師作為參考，而作出有效的治療</p>
+		</div>
+		<div id="fragment-3">
+			<div class="picture">
+				<a href="http://fitness.weco.net">
+					<img id="fitness_tabs" class="tabsImg"src="images/img_park.jpg">
+				</a>
+			</div>
+			<p>悅動園(Fitness Promotion Space, FPS)</p>
+			<p>悅動園目前與輔大護理系、體育系合作建立國內高齡體適能常模。此項服務可以讓家中的長輩將自己的體適能資料上傳後，透過折線圖、雷達圖得知自己在同年齡中的體適能水準，此外也提供相關衛教資訊讓年長者能夠在家中自行健康運動，維持自己的體能狀況！</p>
+		</div>
+		<div id="fragment-4">
+			<div class="picture">
+				<a href="http://diet.weco.net">
+					<img id="diet_tabs"class="tabsImg" src="images/img_food.jpg">
+				</a>
+			</div>
+			<p>膳食軒(Healthy Diet Space, HDS)</p>
+			<p>膳食軒目前與輔大營養系合作，提供營養相關的衛教資訊。使用者可以透過互動式小測驗「營養樂活就是偶」來檢視自己對食物營養的認知。此外，閱讀膳食軒衛教資訊能讓自己對食品營養能有更深一層的認識，膳食軒將會使您吃的營養樂活又健康！</p>
+		</div>
+		<div id="fragment-5">
+			<div class="picture">
+				<a href="http://cognition.weco.net/">
+					<img id="cognition_tabs" class="tabsImg"src="images/img_book.jpg">
+				</a>
+			</div>
+			<p>活腦閣(Brain Training Space, BTS)</p>
+			<p>隨著年齡的增長是否開始擔心自己的腦能力下降？沒關係，活腦閣提供各種不同類型的遊戲，透過遊戲的方式，使您能了解自己個人的認知與反應狀況。目前，活腦閣已開發8款測試記憶力、反應力等的認知遊戲，讓您可以一邊娛樂也能一邊活化腦力！除了遊戲外，活腦閣也提供認知相關新聞及相關衛教資訊，遊戲後也記得要吸取新知喔！</p>
+		</div>
+	</div>
+	
+	<!--Mobile -->
+	<div id="wrap">
+		<div id="imagegallery">
+			<div id="fragment-1" style="width:100%"><p id="text-wipe">好眠居</p></div>
+			<div id="fragment-2" style="width:100%"><p id="text-wipe">聚康廳</p></div>
+			<div id="fragment-3" style="width:100%"><p id="text-wipe">悅動園</p></div>
+			<div id="fragment-4" style="width:100%"><p id="text-wipe">膳食軒</p></div>
+			<div id="fragment-5" style="width:100%"><p id="text-wipe">活腦閣</p></div>	
+		</div><!--end imagegallery-->
+  		<div id="nav"><a id="prev" href="#"><</a> <a id="next" href="#">></a></div>
+		<!--Introduction -->
+		<div id="mobile-introduction">
+			<div id="mobile-introduction-1">
+				<div class="picture">
+					<a href="http://hss.weco.net">
+						<img id="hss_wipe"class="tabsImg" src="images/zzz.png">
+					</a>
+				</div>
+				<p>好眠居提供睡眠相關記錄與分析，使用者可以利用電腦或行動裝置記錄自己的睡眠狀況，長期的睡眠資料也能透過好眠居的平台做深入的追蹤與探討，並提供睡眠衛教資訊補充相關知識，使您夜晚能夠好眠無煩惱！</p>
+			</div>
+			<div id="mobile-introduction-2">
+				<div class="picture">
+					<a href="http://shs.weco.net">
+						<img id="shs_wipe"class="tabsImg" src="images/img_health.jpg">
+					</a>
+				</div>
+				<p>聚康廳為健康社群平台，使用者可透過本系統彼此經驗分享交流與提問。</p>
+				<p>使用者可在聚康廳 - S.H.S.記錄下個人健康服務的記錄，例如心跳、血壓等多樣記錄。健檢方面則由醫護人員記錄須經專業檢測儀器所得結果如:總膽固醇、骨質密度等，而受檢者可利用聚康廳服務進行檢測結果查詢。透過以上所提供之服務，讓使用者的生活品質大大提升，更能藉由這些資訊提供給醫師作為參考，而作出有效的治療</p>
+			</div>
+			<div id="mobile-introduction-3">
+				<div class="picture">
+					<a href="http://fitness.weco.net">
+						<img id="fitness_wipe"class="tabsImg" src="images/img_park.jpg">
+					</a>
+				</div>
+				<p>悅動園目前與輔大護理系、體育系合作建立國內高齡體適能常模。此項服務可以讓家中的長輩將自己的體適能資料上傳後，透過折線圖、雷達圖得知自己在同年齡中的體適能水準，此外也提供相關衛教資訊讓年長者能夠在家中自行健康運動，維持自己的體能狀況！</p>
+			</div>
+			<div id="mobile-introduction-4">
+				<div class="picture">
+					<a href="http://diet.weco.net">
+						<img id="diet_wipe"class="tabsImg" src="images/img_food.jpg">
+					</a>
+				</div>
+				<p>膳食軒目前與輔大營養系合作，提供營養相關的衛教資訊。使用者可以透過互動式小測驗「營養樂活就是偶」來檢視自己對食物營養的認知。此外，閱讀膳食軒衛教資訊能讓自己對食品營養能有更深一層的認識，膳食軒將會使您吃的營養樂活又健康！</p>
+			</div>
+			<div id="mobile-introduction-5">
+				<div class="picture">
+					<a href="http://cognition.weco.net/">
+						<img id="cognition_wipe"class="tabsImg" src="images/img_book.jpg">
+					</a>
+				</div>
+				<p>隨著年齡的增長是否開始擔心自己的腦能力下降？沒關係，活腦閣提供各種不同類型的遊戲，透過遊戲的方式，使您能了解自己個人的認知與反應狀況。目前，活腦閣已開發8款測試記憶力、反應力等的認知遊戲，讓您可以一邊娛樂也能一邊活化腦力！除了遊戲外，活腦閣也提供認知相關新聞及相關衛教資訊，遊戲後也記得要吸取新知喔！</p>
+			</div>
+		
+		</div>
+	</div><!--end wrap -->
+	<div class="offlineContainer ui-corner-all" id="offlineContainer">
+		<div class="menu">
+			<div class="menuTop">
+				<h1><small>離線模式，你可以選擇以下功能</small></h1>
+			</div>
+			<div class="menuContainer">
+				<div class="menuLeft">
+					<h1>觀看紀錄</h1>
+					<ul class="readRecord">
+						<li class="first leaf dhtml-menu" id="dhtml_menu-594">
+							<a href="radar_chart.html" target=_new title="">體適能雷達圖</a>
+						</li>
+					</ul>	
+				</div>
+				<div class="menuRight">
+					<h1>填寫紀錄</h1>
+					<ul class="writeRecord">
+						<li class="first leaf dhtml-menu" id="dhtml_menu-594">
+							<a href="add_fitness.html" target=_new title="">新增體適能紀錄</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>	
+
+<!--
+	<div class="block-inner clearfix">
+        <h2 class="block-title">雷達圖</h2>
+                <ul class="menu">
+                </ul>
+        <h2 class="block-title">睡眠檢測</h2>
+                <div class="block-content content">
+                        <ul class="menu">
+                       	 </ul>
+                </div>
+        </div>
+-->
+	</div>
+<div id="functions">
+                <span id="show" class="hide" onmouseover="showform();" onclick="showform();">顯示功能表</span>
+                <span id="hide" class="show" onmouseover="hideform();" onclick="hideform();">隱藏功能表</span>
+        </div>
+
+</div> <!-- end container -->
+
+<script>
+	$("div[id^=mobile-introduction-]").css("height", "0").css("display","none");
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+setInterval(function(){
+	if(navigator.onLine){
+		online=true;
+		checkStatus();
+	}
+	else{
+		online=false;
+		checkStatus();
+	}
+},500);

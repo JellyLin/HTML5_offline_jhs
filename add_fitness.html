@@ -1,0 +1,135 @@
+﻿<html>
+<head>
+    <title>輸入體適能資料</title>
+	<script src="js/jquery-1.7.2.min.js" ></script>    
+	<script src="js/jquery-ui-1.8.21.custom.min.js" ></script>    
+	<link rel="stylesheet" href="css/jquery-ui-1.8.21.custom.css">
+	<link rel="stylesheet" href="css/radar_chart.css">
+	<script>
+	function upload_record()
+	{
+		$.ajax({
+			type: "POST",
+			url: "upload_fitness.php",
+			data: localStorage.radar_add,
+			success : function(data, textStatus) {
+				$("#return").after("<p>"+data+"</p>");
+				if (textStatus == "success")
+				{
+					localStorage.radar_add = "";
+				}
+			}
+		});
+	}
+	</script>
+</head>
+<body>
+	<div id="top">
+		<p id="user_name">體適能輸入</p>
+	</div>
+	<div>
+		<fieldset id="radarchart">
+			<legend>
+				<p>常模比較圖</p>
+			</legend>
+				
+			<input type="hidden" name="textfield" id="textfield">
+			<label for="B"><br /> 心肺耐力（２分鐘抬腿）</label>
+			<br/>
+			<input type="text" id="B"/>
+			<br/>
+			<label for="FR">上肢耐力 (右手握力) </label>
+			<br/>
+			<input type="text" id="FR" />
+			<br/>
+			<label for="A">肢肌耐力(三十秒坐站測驗) </label>
+			<br/>
+			<input type="text" id="A"/>
+			<br/>
+			<label for="EOL">平衡感(睜眼左腳單足站立) </label>
+			<br/>
+			<input type="text" id="EOL"/>
+			<br/>
+			<label for="DH">柔軟度(半坐姿體前彎)</label>    
+			<br/>
+			<input type="text" id="DH"/>
+			<br/>
+			<br/>
+			
+			<label>量測日期</label>
+
+			<div class="demo">
+
+			<p>Date: <input type="text" name="datepicker" id="datepicker" value=""></p>
+
+			</div><!-- End demo -->
+
+			<script>
+				$(function() {
+					$( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
+				});
+								
+				var today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth()+1; //January is 0!
+
+				var yyyy = today.getFullYear();
+				if ( dd < 10 )
+				{
+					dd = "0" + dd;
+				} 
+				if ( mm < 10 )
+				{
+					mm = "0" + mm; 
+				} 
+				today = yyyy + "-" + mm + "-" + dd;
+				$("#datepicker").val(today);
+			</script>
+
+
+			<div class="demo-description" style="display: none; ">
+			<p>The datepicker is tied to a standard form input field.  Focus on the input (click, or use the tab key) to open an interactive calendar in a small overlay.  Choose a date, click elsewhere on the page (blur the input), or hit the Esc key to close. If a date is chosen, feedback is shown as the input's value.</p>
+			</div><!-- End demo-description -->
+			
+
+			<input type="submit" name="button" id="btn_save" value="儲存體適能資料">
+			
+		</fieldset>
+		
+		<fieldset id="past_records">
+			<legend	id="records">
+				<p>觀看過去的記錄</p>
+			</legend>
+		</fieldset>
+	</div>
+	<script>
+	// Print User Name
+	if (localStorage.username != null){
+		$("#user_name").html(localStorage.username + "的" + $("#user_name").text());
+	}
+	$("#btn_save").click(function(){
+		if (localStorage.radar_add == null || localStorage.radar_add == ""){
+			localStorage.radar_add = '{ "name" : "' + localStorage.username + '", "record" : [] }';
+		}
+		var record_add = "";
+		ss = jQuery.parseJSON(localStorage.radar_add);
+		// 拿出來
+		$.each(ss,function(k,v){
+			if(k=="record") 
+				record_add = v;
+		});
+		record_add.push({ "A" : $("#A").val() , "B" : $("#B").val() , "DH" : $("#DH").val() , "EOL" : $("#EOL").val() , "FR" : $("#FR").val() , "time" : $("#datepicker").val() });
+		// 放回去
+		$.each(ss,function(k,v){
+			if(k=="record") 
+				v = record_add;
+		});
+		localStorage.radar_add = JSON.stringify(ss);
+	});
+	</script>
+    
+	<div>
+		<button onclick="upload_record()">上傳記錄</button>
+	</div>
+</body>
+</html>

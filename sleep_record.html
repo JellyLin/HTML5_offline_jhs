@@ -1,0 +1,864 @@
+<html lang="zh-hant">
+<head>
+<meta charset="utf-8">
+
+<title>新增睡眠資料 | 好眠居</title>
+<link type="text/css" rel="stylesheet" href="../logic_hss/css/sleep_diary.css">
+<link type="text/css" rel="stylesheet" href="../logic_hss/css/ui.theme.css">
+<link type="text/css" rel="stylesheet" href="../logic_hss/css/timeentry.css">
+
+<script src="../js/jquery-1.7.2.min.js"></script>
+<script src="../logic_hss/js/jcanvas.min.js"></script>
+<script src="../logic_hss/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="../logic_hss/js/enhance.js"></script>
+<script src="../logic_hss/js/kinetic2d-v1.0.4.js"></script>
+<script src="../logic_hss/js/timeentry.js"></script>
+<script src="../logic_hss/js/jquery.raty.min.js"></script>
+<style type="text/css" title="sweaver"></style>
+
+</head>
+<body class="admin-menu">
+
+
+	<script type="text/javascript">
+					
+		var exercise_name		 = "";
+		var drug_name			 = "";
+		var caffeine_name		 = "";
+		var alcohol_name		 = "";
+
+		var rectangles = [];									
+		var sources = [];
+
+	$(document).ready(function($){
+		// date sellector				
+		var myDate = new Date(); 
+		var month = myDate.getMonth() + 1; 
+		var prettyDate = myDate.getFullYear() + '-' + month + '-' + myDate.getDate();
+
+		loadImages(sources, initStage);
+		
+		$( "#datepicker" ).val(prettyDate);
+			
+		$( "#datepicker" ).datepicker({
+			changeMonth: true,
+			changeYear: true,
+			showAnim: "slideDown",
+			dateFormat: "yy-mm-dd",	
+		});
+		
+		$("#exceptedtime").timeEntry({
+			spinnerImage: '',
+			show24Hours: true
+		});
+		$("#exercise_start").timeEntry({
+			spinnerImage: '',
+			show24Hours: true
+		});
+		$("#exercise_end").timeEntry({
+			spinnerImage: '',
+			show24Hours: true
+		});
+		$( "#info" ).accordion();
+		//$( "#list" ).accordion();
+
+		$('#alcoholButton').hide();
+		$('#alcoholContent').hide();
+		$('#caffeineButton').hide();
+		$('#caffeineContent').hide();
+		$('#drugsButton').hide();
+		$('#drugsContent').hide();
+		$('#exerciseButton').hide();
+		$('#exerciseContent').hide();
+
+		//questionary lisy
+		$('#night_mood').raty({
+			path: '/logic_hss/images',
+			hintList:  ['很差', '差', '普通', '好', '很好'],
+			iconRange: [['face_aa.gif', 1], ['face_a.gif', 2], ['face_b.gif', 3], ['face_c.gif', 4], ['face_cc.gif', 5]],
+			starOff:   'night.gif',
+			target:	   '#night_mood_value',
+			targetKeep:     true,
+			targetType:	'number',
+		}); 
+		$('#sleep_quality').raty({
+			path: '/logic_hss/images',
+			hintList:  ['難以入眠', '不舒適', '普通', '舒適', '好眠至天亮'],
+			iconRange: [['face_aa.gif', 1], ['face_a.gif', 2], ['face_b.gif', 3], ['face_c.gif', 4], ['face_cc.gif', 5]],
+			starOff:   'night.gif',
+			target:	   '#sleep_quality_value',
+			targetKeep:     true,
+			targetType:	'number',
+		}); 
+		$('#morning_feel').raty({
+			path: '/logic_hss/images',
+			hintList:  ['非常疲憊', '疲憊', '普通', '精神不錯', '精力充沛'],
+			iconRange: [['face_aa.gif', 1], ['face_a.gif', 2], ['face_b.gif', 3], ['face_c.gif', 4], ['face_cc.gif', 5]],
+			starOff:   'night.gif',
+			target:	   '#morning_feel_value',
+			targetKeep:     true,
+			targetType:	'number',
+		});
+		$('#day_feel').raty({
+			path: '/logic_hss/images',
+			hintList:  ['非常嗜睡', '嗜睡', '普通', '精神不錯', '精力充沛'],
+			iconRange: [['face_aa.gif', 1], ['face_a.gif', 2], ['face_b.gif', 3], ['face_c.gif', 4], ['face_cc.gif', 5]],
+			starOff:   'night.gif',
+			target:	   '#day_feel_value',
+			targetKeep:		true,
+			targetType:	'number',
+		}); 
+			
+		//all hover and click logic for buttons
+		$(".fg-button:not(.ui-state-disabled)").hover(
+			function(){
+				$(this).addClass("ui-state-hover");
+			},
+			function(){
+				$(this).removeClass("ui-state-hover");
+			}
+		).mousedown(function(){
+			$(this).parents('.fg-buttonset-single:first').find(".fg-button.ui-state-active").removeClass("ui-state-active");
+
+			if( $(this).is('.ui-state-active.fg-button-toggleable, .fg-buttonset-multi .ui-state-active') ){ 
+				$(this).removeClass("ui-state-active"); 
+			}
+			
+			else { 
+					$(this).addClass("ui-state-active");
+	
+					if($(this).is("#exercise")){
+					var temp = {
+						name: "exercise",
+						image: null,
+						x: 12.5,
+						y: 40,
+						dragging: false
+					};
+					rectangles.push(temp);
+					sources.push("/logic_hss/images/ball.gif");
+					loadImages(sources, initStage);
+					var num =  parseInt($('#exercise_num').attr('value')) + 1;
+					$('#exercise_num').val(num);
+					$('#exerciseButton').show();
+				}
+				else if($(this).is("#drug")){
+					var temp = {
+						name: "drug",
+						image: null,
+						x: 150,
+						y: 70,
+						dragging: false
+					};
+					rectangles.push(temp);
+					sources.push("/logic_hss/images/drug.gif");
+					loadImages(sources, initStage);
+					if($('#drug_usage').attr('value') == "no"){
+						$('#drug_usage').val("yes");
+						$('#drugsButton').show();
+					}
+				}
+				else if($(this).is("#sleepy")){
+					var temp = {
+						name: "sleepy",
+						image: null,
+						x: 150,
+						y: 100,
+						dragging: false
+					};
+					rectangles.push(temp);
+					sources.push("/logic_hss/images/zzz.gif");
+					loadImages(sources, initStage);
+				}	
+				else if($(this).is("#alcohol")){
+					var temp = {
+						name: "alcohol",
+						image: null,
+						x: 150,
+						y: 130,
+						dragging: false
+					};
+					rectangles.push(temp);
+					sources.push("/logic_hss/images/beer.gif");
+					loadImages(sources, initStage);
+					if($('#alcohol_usage').attr('value') == "no"){
+						$('#alcohol_usage').val("yes");
+						$('#alcoholButton').show();
+					}
+				}
+				else if($(this).is("#cafe")){
+					var temp = {
+						name: "caffeine",
+						image: null,
+						x: 150,
+						y: 160,
+						dragging: false
+					};
+					rectangles.push(temp);
+					sources.push("/logic_hss/images/cafe.gif");
+					loadImages(sources, initStage);
+					if($('#caffeine_usage').attr('value') == "no"){
+						$('#caffeine_usage').val("yes");
+						$('#caffeineButton').show();
+					}
+				}
+			}
+			
+			
+			if($(this).is('#sleep_pill')||$(this).is('#Melatonin')){
+				$('#drugsContent').show();
+				if($(this).is('#sleep_pill')){
+					drug_name = "sleep pill";
+				}
+				else if($(this).is('#Melatonin')){
+					drug_name = "Melatonin";
+				}
+			}
+
+			else if($(this).is('#beerss')||$(this).is('#wine')||$(this).is('#volka')){
+				$('#alcoholContent').show();
+				
+				if($(this).is('#beerss')){
+					alcohol_name = "beer";
+				}
+				else if($(this).is('#wine')){
+					alcohol_name = "wine";
+				}
+				else if($(this).is('#volka')){
+					alcohol_name = "volka";
+				}
+			}
+
+			else if($(this).is('#cafe')||$(this).is('#cola')||$(this).is('#tea')){
+				$('#caffeineContent').show();
+
+				if($(this).is('#coffie')){
+					caffeine_name = "cafe";
+				}
+				else if($(this).is('#cola')){
+					caffeine_name = "cola";
+				}
+				else if($(this).is('#volka')){
+					caffeine_name = "volka";
+				}
+			}
+
+			else if($(this).is('#swimming')||$(this).is('#run')||$(this).is('#hiking')||$(this).is('#balls')){
+				$('#exerciseContent').show();
+
+				if($(this).is('#swimming')){
+					exercise_name = "swimming";
+				}
+				else if($(this).is('#run')){
+					exercise_name = "run";
+				}
+				else if($(this).is('#hiking')){
+					exercise_name = "hiking";
+				}
+				else if($(this).is('#sport')){
+					exercise_name = "sport";
+				}
+			}
+
+		
+		}).mouseup(function(){
+			if(! $(this).is('.fg-button-toggleable, .fg-buttonset-single .fg-button, .fg-buttonset-multi .fg-button')){		
+				$(this).removeClass("ui-state-active");
+			}
+		});
+
+		//Timeline's background 
+		drawtimelinebkg();
+
+		//Slider
+		$("#drug_slider").slider({
+			range: "min",
+			min: 0,
+			max: 5,
+			step: 1,
+			slide: function( event, ui ) {
+				$( "#drug_capacity" ).val( ui.value + "顆");
+			}
+		});
+		$("#alcohol_slider").slider({
+			range: "min",
+			min: 0,
+			max: 5000,
+			step: 50,
+			slide: function( event, ui ) {
+				$( "#alcohol_capacity" ).val( ui.value + "ml");
+			}
+		});
+		$("#caffeine_slider").slider({
+			range: "min",
+			min: 0,
+			max: 5000,
+			step: 50,
+			slide: function( event, ui ) {
+				$( "#caffeine_capacity" ).val( ui.value + "ml");
+			}
+		});
+		$("#slider-range").slider({
+			range: true,
+			min: 0,
+			max: 1440,
+			step: 5,
+			values: [240, 840],
+			slide: slideTime
+		});
+		$('button#submit').click(function(){
+			var uid		 = $('#uid').val();
+			//alert('Message goes here');
+			var record_date			 = $('#datepicker').attr('value');
+			var bedTime				 = $('#bedtime').attr('value');
+			var asleepTime			 = $('#asleeptime').val();
+			var awakeTimes			 = $('#awakeTimes').attr('value');
+			var wakeType			 = $('#wakeby').attr('value');
+			var exceptedTime		 = $('#exceptedtime').attr('value');
+			var riseTime			 = $('#risetime').attr('value');
+			var activities			 = $('#activities').attr('value');
+			var daytime_naps_num	 = $('#daytime_naps').attr('value');
+			var naps_startTime		 = $('#naps_start').attr('value');
+			var naps_interval		 = $('#naps_interval').attr('value');
+			var exercise_num		 = $('#exercise_num').attr('value');
+			var exercise_startTime	 = $('#exercise_start').attr('value');
+			var exercise_endTime	 = $('#exercise_end').attr('value');
+			var caffeine_usage		 = $('#caffeine_usage').attr('value');
+			var caffeine_capacity	 = $('#alcohol_capacity').attr('value');
+			var alcohol_usage		 = $('#alcohol_usage').attr('value');
+			var alcohol_capacity	 = $('#alcohol_capacity').attr('value');
+			var drug_usage			 = $('#drug_usage').attr('value');
+			var drug_capacity		 = $('#drug_capacity').attr('value');
+			var drug_takeTime		 = $('#drugtaketime').attr('value');
+		
+			var night_mood			 = $('#night_mood_value').attr('value');
+			var sleep_quality		 = $('#sleep_quality_value').attr('value');
+			var day_feel			 = $('#day_feel_value').attr('value');
+			var morning_mood		 = $('#morning_feel_value').attr('value');
+//alert(daytime_naps_num);
+
+			$.ajax({  
+				type: "POST",  
+				url: "/logic_hss/dailyRecard.php",  
+				data: "uid="+uid+"& record_date="+ record_date +"& bedTime="+ bedTime
+					   +"& asleepTime="+ asleepTime+"& awakeTimes="+ awakeTimes+"& wakeType="+ wakeType
+					   +"& exceptedTime="+ exceptedTime+"& riseTime="+ riseTime+"& activities="+ activities
+					   +"& daytime_naps_num="+ daytime_naps_num+"& naps_startTime="+ naps_startTime+"& naps_interval="+ naps_interval
+					   +"& exercise_num="+ exercise_num+"& exercise_name="+ exercise_name+"& exercise_startTime="+ exercise_startTime
+					   +"& exercise_endTime="+ exercise_endTime +"& caffeine_usage="+ caffeine_usage +"& caffeine_capacity="+ caffeine_capacity
+					   +"& alcohol_usage="+ alcohol_usage +"& night_mood="+ night_mood +"& sleep_quality="+ sleep_quality
+					   +"& day_feel="+ day_feel+"& morning_mood="+ morning_mood, 
+				success: function(){  
+					//$('#submit').hide(function(){$('div.success').fadeIn();});  
+				}  
+			});  
+			function show_confirm(){
+			var r=confirm("你已經記錄了"+record_date+"的睡眠日誌");
+				if (r==true){
+					document.location.href="/node/46?date="+record_date;
+				}
+				else{
+				//	document.location.href="/calcul_sq?date="+record_date;
+				}
+		}
+		show_confirm();
+			return false;  
+		});
+	});
+	function putExerciseStartTime(offsetX){
+		var hourlength = 25;
+		var minutes = 0;
+		var hour = parseInt(offsetX / hourlength) - 6;
+		var min = offsetX % hourlength / 6.25 ;
+		if(min == 0){
+			minutes = "00";
+		}else if (min > 0  && min < 1){
+			minutes = "15";
+		}else if (min >= 1 && min < 2){
+			minutes = "30";
+		}else if (min >= 2 && min < 3){
+			minutes = "45";
+		}
+		else {
+			minutes = "00";
+		}
+		
+		if(hour<0){
+			hour += 24 ;
+		}
+
+		$('#exercise_start').val(hour+":"+minutes);
+	}
+	function loadImages(sources, callback){
+		var images = {};
+		var loadedImages = 0;
+		var numImages = 0;
+		
+		for (var src in sources) {
+			numImages++;
+		}
+		for (var src in sources) {
+			images[src] = new Image();
+			images[src].onload = function(){
+				if (++loadedImages >= numImages) {
+					callback(images);
+				}
+			};
+			images[src].src = sources[src];
+		}
+	}
+	function mapImages(rectangles, images){
+		// map images to rectangles
+		var counter = 0;
+		for (var img in images) {
+			rectangles[counter++]["image"] = images[img];
+		}
+	}
+	function initStage(images){
+		//var rectangles = initRectangles(rectangles);
+		mapImages(rectangles, images);
+
+		kin = new Kinetic_2d("timeblock");
+		var context = kin.getContext();
+		var canvas = kin.getCanvas();
+
+		var offsetX = 0;
+		var offsetY = 0;
+
+		// when using KineticJS, we need to draw the shapes with the highest z-index first and the shapes with the lowest z-index last in order to correctly handle shape layering
+		context.globalCompositeOperation = "destination-over";
+
+		canvas.addEventListener("mouseout", function(){
+			for (var n = 0; n < rectangles.length; n++) {
+				rectangles[n].dragging = false;
+			}
+		}, false);
+
+		kin.setDrawStage(function(){
+				
+			kin.clear();
+			drawtimelinebkg();	
+			
+			var mousePos = kin.getMousePos();
+
+			for (var n = 0; n < rectangles.length; n++) {
+				var thisRect = rectangles[n];
+				if (thisRect.dragging) {
+					thisRect.x = mousePos.x - offsetX;
+					//thisRect.y = mousePos.y - offsetY;
+				}
+
+				kin.beginRegion();
+				context.drawImage(thisRect.image, thisRect.x, thisRect.y, 24, 24);
+				context.beginPath();
+				context.rect(thisRect.x, thisRect.y, 24, 24);
+				context.closePath();
+
+				kin.addRegionEventListener("mousedown", function(){
+					thisRect.dragging = true;
+					var mousePos = kin.getMousePos();
+
+					offsetX = mousePos.x - thisRect.x;
+					offsetY = mousePos.y - thisRect.y;
+
+					if(thisRect.name == "exercise"){
+						putExerciseStartTime(mousePos.x);
+					}
+
+					// place this rect at the beginning of the rectangles array so that is is rendered on top
+					//rectangles.splice(n, 1);
+					//rectangles.splice(0, 0, thisRect);
+				});
+				kin.addRegionEventListener("mouseup", function(){
+					thisRect.dragging = false;
+				});
+				kin.addRegionEventListener("mouseover", function(){
+					document.body.style.cursor = "move";
+				});
+				kin.addRegionEventListener("mouseout", function(){
+					document.body.style.cursor = "default";
+				});
+				kin.closeRegion();
+			}
+		});
+	}
+	function drawtimelinebkg(){
+		//Timeline
+		var point_x = 25;
+
+		for(i=1; i<13; i=i+1){
+			
+			$("canvas#timeblock").drawRect({
+				fillStyle: "#dfdfdf",
+				x: point_x, y: 0,
+				width: 25,
+				height: 200,
+				fromCenter: false
+			});
+			
+			point_x += 50;
+		}
+		
+		var hour_text = 6;
+
+		$("canvas#textblock").drawText({
+			fillStyle: "#000",
+			strokeStyle: "#000",
+			strokeWidth: 1,
+			text: hour_text,
+			align: "center",
+			baseline: "middle",
+			font: "normal 8pt Verdana",
+			x: 3,
+			y: 10
+		});					
+
+		point_x = 23;	
+		hour_text = 7;
+
+		for(i=1; i<24; i=i+1){
+			
+			$("canvas#textblock").drawText({
+				fillStyle: "#000",
+				strokeStyle: "#000",
+				strokeWidth: 1,
+				text: hour_text,
+				align: "center",
+				baseline: "middle",
+				font: "normal 8pt Verdana",
+				x: point_x,
+				y: 10
+			});					
+			point_x += 25;
+			hour_text += 1;
+
+			if(hour_text > 12){
+				hour_text -= 12;
+			}
+		}
+
+		$("canvas#textblock").drawText({
+			fillStyle: "#000",
+			strokeStyle: "#000",
+			strokeWidth: 1,
+			text: hour_text,
+			align: "center",
+			baseline: "middle",
+			font: "normal 8pt Verdana",
+			x: 595,
+			y: 10
+		});
+
+		var label1 = new Array("晚上", "午夜", "早上", "中午", "下午");
+		var label1_axis_x = new Array(40, 150, 325, 450, 550);				
+		var len=label1.length;
+
+		for(var i=0; i<len; i++) {
+			$("canvas#textblock").drawText({
+				fillStyle: "#000",
+				strokeStyle: "#000",
+				strokeWidth: 1,
+				text: label1[i],
+				align: "center",
+				baseline: "middle",
+				font: "normal 12pt 'Microsoft JhengHei'",
+				x: label1_axis_x[i],
+				y: 30
+			});
+		}
+
+		$("canvas#textblock").drawText({
+			fillStyle: "#327E04",
+			strokeStyle: "#327E04",
+			strokeWidth: 1,
+			text: "前一天",
+			align: "center",
+			baseline: "middle",
+			font: 'normal 10pt "Microsoft JhengHei"',
+			x: 40,
+			y: 55
+		});
+		$("canvas#textblock").drawText({
+			fillStyle: "#327E04",
+			strokeStyle: "#327E04",
+			strokeWidth: 1,
+			text: "今天",
+			align: "center",
+			baseline: "middle",
+			font: 'normal 10pt "Microsoft JhengHei"',
+			x: 280,
+			y: 55
+		});
+		$("canvas#textblock").drawLine({
+			strokeStyle: "#327E04",
+			strokeWidth: 2,
+			strokeCap: "round",
+			strokeJoin: "miter",
+			x1: 20, y1: 60,
+			x2: 60, y2: 60,
+		});
+		$("canvas#textblock").drawLine({
+			strokeStyle: "#327E04",
+			strokeWidth: 2,
+			strokeCap: "round",
+			strokeJoin: "miter",
+			x1: 265, y1: 60,
+			x2: 295, y2: 60,
+		});
+	}
+	function slideTime(event, ui){
+		var minutes0 = parseInt($("#slider-range").slider("values", 0) % 60);
+		var hours0 = parseInt($("#slider-range").slider("values", 0) / 60 % 24) - 6;
+		var minutes1 = parseInt($("#slider-range").slider("values", 1) % 60);
+		var hours1 = parseInt($("#slider-range").slider("values", 1) / 60 % 24) - 6;
+		
+		$("#bedtime").val(getTime(hours0, minutes0));
+		$("#risetime").val(getTime(hours1,minutes1));
+	}
+	function getTime(hours, minutes) {
+		var time = null;
+		var day = null;
+		
+		minutes = minutes + "";
+
+		if (hours < 0) {
+			day = "昨天";
+			hours = hours + 24;
+		}
+		else {
+			day = "今天";
+		}
+		if (hours <= 5){
+			time = "凌晨";
+		}
+		else if (hours > 5 && hours < 12) {
+			time = "早上";
+		}
+		else if (hours > 12 && hours < 17){
+			time = "下午";
+		}
+		else {
+			time = "晚上";
+		}
+
+		if (hours == 0) {
+			hours = 12;
+		}
+		if (hours > 12) {
+			hours = hours - 12;
+		}
+		if (minutes.length == 1) {
+			minutes = "0" + minutes;
+		}
+		return day +" "+ time + " "+hours + ":" + minutes;
+	}
+	slideTime();
+</script>
+
+	<form id="sleepdata" method="POST" onsubmit="return false;">
+	<!-- php
+	global $user;
+	$uid = $user->uid;
+	echo '<input type="hidden" name="uid" id="uid" value="'.$uid.'">';
+	?-->
+	<input type="hidden" name="uid" id="uid" value="uid">
+	<div id="sdiary">
+				<div id="container">
+					<form id="sleepdata" method="post"> 
+					<div class="header ui-widget-header ui-corner-all ui-helper-clearfix">
+						<span class="title">
+							記錄日期：
+							<input type="text" id="datepicker" class="datatragger" size="14">
+						</span>
+					</div>
+					<div id="sub-container">
+						<div id = "content-sleep">
+							<div class = "fg-toolbar ui-corner-all ui-helper-clearfix">
+								<div id = "bottonset" class = "fg-bottonset fg-buttonset-single">
+									<button id="exercise" class="fg-button ui-state-default ui-priority-primary corner-left normal-Button">運動&nbsp;(E)</button>
+									<button id="drug" class="fg-button ui-state-default ui-priority-primary normal-Button">服用藥物&nbsp;(M)</button>
+									<button id="sleepy" class="fg-button ui-state-default ui-priority-primary">午休&nbsp;(N)</button>
+									<button id="alcohol" class="fg-button ui-state-default ui-priority-primary">飲酒&nbsp;(A)</button>
+									<button id="cafe" class="fg-button ui-state-default ui-priority-primary corner-right">咖啡因飲料&nbsp;(C)</button>
+								</div>
+							</div>
+							<div id = "timeline">
+								<canvas height="200px" width="600px" id="timeblock" class="canstyle"></canvas>
+								<canvas height="70px" width="600px" id="textblock" class="canstyle2"></canvas>
+							</div>
+						</div>
+						<div id = "info">
+							<h4><a href="#">睡覺中</a></h4>
+							<div id = "sleepDIV">
+							
+								<p>上床時間:
+									<input id="bedtime" name="bedtime" value="昨天 晚上 10:00" readonly="readonly" type="text" size="12" class="inputPosition" />
+								</p>
+								</br>
+								<p>約多久時間睡著(分):
+									<input type="number" id="asleeptime" name="asleeptime" class="inputPosition numberfield" step="1" value="30" min="0" size="4" />
+								</p>
+								</br>
+								<p>睡眠中清醒次數:
+									<input id="awakeTimes" name="awakeTimes" class="inputPosition numberfield" type="number" step="1" value="0" min="0" size="2">
+								</p>
+								</br>
+								<p>睡前進行以下活動?
+									<select id="activities" size="1" name="activities" class="inputPosition">
+										<option value="null">無</option>
+										<option value="tv">看電視</option>
+										<option value="game">電玩遊戲</option>
+										<option value="internet">上網</option>
+										<option value="reading">閱讀</option>
+									</select>
+								</p>
+								</br>
+								<p>
+									<span class="raty-label">睡前心情:</span>
+									<span id="night_mood"></span>
+									<input id="night_mood_value" type="hidden">
+								</p>
+								</br>
+								<p>
+									<span class="raty-label">睡眠品質：</span>
+									<span id="sleep_quality"></span>
+									<input id="sleep_quality_value" type="hidden">
+								</p>
+								</br>
+							</div>
+							<h4><a href="#">起床時</a></h4>
+							<div id = "wakeupDIV">
+								<p>起床時間:
+									<input id="risetime" name="risetime" class="inputPosition" readonly="readonly" type="text" size="12" value="今天 早上 8:00" />
+								</p>
+								</br>
+								<p>預計起床時間:
+									<input type="time" id="exceptedtime" name="exceptedtime" class="inputPosition" value="06:00" size="7" required="required"/>
+								</p>
+								</br>
+								<p>清醒方式:
+									<select id="wakeby" size="1" name="wakeby" class="inputPosition">
+										<option value="alarm_device">喚醒裝置(鬧鐘)</option>
+										<option value="nature">自然清醒</option>
+										<option value="ZEO">ZEO</option>
+										<option value="others">其他</option>
+									</select>
+								</p>
+								</br>
+								<p>
+									<span class="raty-label">起床感覺:</span>
+									<span id="morning_feel"></span>
+									<input id="morning_feel_value" type="hidden">
+								</p>
+								</br>
+								<p>
+									<span class="raty-label">今天精神:</span>
+									<span id="day_feel"></span>
+									<input id="day_feel_value" type="hidden">
+								</p>
+								</br>
+							</div>
+							<h4><a href="#">白晝間</a></h4>
+							<div id = "napsDIV">
+								<p>昏昏欲睡、瞌睡或午休？
+									<input id="daytime_naps" name="daytime_naps" class="inputPosition" type="hidden" size="3" value="1" min="0" max="20" />
+								</p>
+								
+								<p>開始時間:
+									<input type="time" id="naps_start" name="naps_start" class="inputPosition" value="12:30" size="7"/>
+								</p>
+								<p>間隔(分):
+									<input type="number" id="naps_interval" name="naps_interval" class="inputPosition numberfield" max="999" value="30" size="3"/>
+								</p>
+							</div>
+							<h4><a href="#">運動狀況</a></h4>
+							<div id = "exerciseDIV">
+								<input id="exercise_num" name="exercise_num" class="inputPosition" type="hidden" size="3" step="1" min="0" max="10" value="0" />
+								<p><i>今天運動情形</i></p>
+								<div id="exerciseButton" class = "fg-toolbar2 ui-corner-all ui-helper-clearfix">
+									<div class="fg-buttonset fg-buttonset-single">
+										<button id="swimming" class="fg-button ui-state-default ui-corner-left">游泳</button>
+										<button id="run" class="fg-button ui-state-default">跑步</button>
+										<button id="hiking" class="fg-button ui-state-default">健行</button>
+										<button id="balls" class="fg-button ui-state-default  ui-corner-right">球類</button>
+									</div>
+								</div>
+								<div id = "exerciseContent">
+									<p>開始時間:
+										<input type="time" id="exercise_start" name="naps_start" class="inputPosition" value="19:00" size="7"/>
+									</p>
+									<p>結束時間:
+										<input type="time" id="exercise_end" name="naps_start" class="inputPosition" value="19:30" size="7"/>
+									</p>
+								</div>
+							</div>
+							<h4><a href="#">藥物服用情形</a></h4>
+							<div id = "drugDIV">
+								<input id="drug_usage" name="drug_usage" class="inputPosition" type="hidden" size="3" value="no" />
+								<span id="drugMSG"><i><p>最接近睡前一次睡眠相關服藥情形</i></p></span>
+								<div id = "drugsButton" class = "fg-toolbar2 ui-corner-all ui-helper-clearfix">
+									<div class="fg-buttonset fg-buttonset-single">
+										<button id="sleep_pill" class="fg-button ui-state-default ui-corner-left">安眠藥</button>
+										<button id="Melatonin" class="fg-button ui-state-default ui-corner-right">褪黑激素</button>
+									</div>
+								</div>
+								<div id = "drugsContent">
+									<p>服用時間:
+										<input type="time" id="drugtaketime" name="drugtaketime" class="inputPosition" value="12:30PM" size="7"/>
+									</p>
+									<p>藥用量:
+										<input type="text" id="drug_capacity" value="0" class="inputPosition" size="6" style="border:0; color:#f6931f; font-weight:bold;" />
+									</p>
+									<div id="drug_slider" class="drug_slider"></div>
+								</div>
+							</div>
+							<h4><a href="#">含咖啡因飲品</a></h4>
+							<div id = "caffeineDIV">
+								<input id="caffeine_usage" name="caffeine_usage" class="inputPosition" type="hidden" size="3" value="no" />
+								<span id="caffeineMSG"><i><p>下午3點後飲用含咖啡因飲品情形</i></p></span>
+								<div id = "caffeineButton" class = "fg-toolbar2 ui-corner-all ui-helper-clearfix">
+									<div class="fg-buttonset fg-buttonset-single">
+										<button id="tea" class="fg-button ui-state-default ui-corner-left">茶</button>
+										<button id="coffie" class="fg-button ui-state-default">咖啡</button>
+										<button id="cola" class="fg-button ui-state-default  ui-corner-right">可樂</button>
+									</div>
+								</div>
+								<div id = "caffeineContent">
+									<p>飲用量:
+										<input type="text" id="caffeine_capacity" value="0" class="inputPosition" size="6" style="border:0; color:#f6931f; font-weight:bold;" />
+									</p>
+									<div id="caffeine_slider" class="capacity_slider"></div>
+								</div>
+							</div>
+							<h4><a href="#">含酒精飲品</a></h4>
+							<div id = "alcoholDIV">
+								<input id="alcohol_usage" name="alcohol_usage" class="inputPosition" type="hidden" size="3" value="no" />
+								<span id="alcoholMSG"><p><i>睡前3小時飲用酒類情形</i></p></span>
+								<div id = "alcoholButton" class = "fg-toolbar2 ui-corner-all ui-helper-clearfix">
+									<div class="fg-buttonset fg-buttonset-single">
+										<button id="beerss" class="fg-button ui-state-default ui-corner-left">啤酒</button>
+										<button id="wine" class="fg-button ui-state-default">紅酒</button>
+										<button id="volka" class="fg-button ui-state-default  ui-corner-right">威士忌</button>
+									</div>
+								</div>
+								<div id = "alcoholContent">
+									<p>飲用量:
+										<input type="text" id="alcohol_capacity" value="0" class="inputPosition" size="6" style="border:0; color:#f6931f; font-weight:bold;" />
+									</p>
+									<div id="alcohol_slider" class="capacity_slider"></div>
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div id="slider-range" class="slider"></div>
+						<div id = "list">
+							<button id="submit" type="submit">送出</button>
+						</div>
+					</div>
+				</div>
+			</div>
+</form>
+
+
+</body>
+</html>

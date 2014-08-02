@@ -1,0 +1,38 @@
+<html manifest="test.manifest">
+<head>
+<script src="js/jquery-1.7.2.min.js"></script>
+<script>
+	function showHint(str){
+		if (str.length==0){
+  			document.getElementById("txtHint").innerHTML="";
+  			return;
+  		}
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  			xmlhttp=new XMLHttpRequest();
+  		}
+		else{// code for IE6, IE5
+  			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  		}
+		xmlhttp.onreadystatechange=function(){
+			if(xmlhttp.readyState==4 && xmlhttp.status==200){
+				alert("aa");
+ 				document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+				localStorage.radar=xmlhttp.responseText;
+			}
+		}
+		xmlhttp.open("GET","http://jhs.jelly9.net/offline/radar.php",true);
+		xmlhttp.send();
+		
+	}
+</script>
+</head>
+<body>
+
+<p><b>Start typing a name in the input field below:</b></p>
+<form>
+First name: <input type="text" onkeyup="showHint(this.value)" size="20" />
+</form>
+<p>Suggestions: <span id="txtHint"></span></p>
+
+</body>
+</html>

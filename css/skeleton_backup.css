@@ -1,0 +1,276 @@
+/* Laptop Default ----------- */
+/* style */
+	h1{
+		line-height:38px;
+		font-size:72px;
+	}
+	h1 small{
+		line-height:68px;
+		display:block;
+	}
+	h2{
+		font-weight:normal;
+		font-size:56px;
+	}
+	.container{
+		margin-top: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 1200px;
+	}
+	.top{
+		height:120px;
+	}
+	.ff{
+		height:120px;
+		width: 700px;
+	}
+	.login_button{
+		height:120px;
+		width: 240px;
+		float:right;
+		border-left:1px solid #000;
+	}
+	.login_status{
+		height:120px;
+		width: 250px;
+		float:right;
+	}
+	.dialog_link{
+		text-decoration:none;
+		padding:15px 0% 0% 0%;/**上右下左**/
+		font-size:72px;
+		float:right;
+		text-align: center;
+		width:100%;
+		max-height:100%;
+		height:100%;
+	}
+	.mb-slider, .mb-scroll{
+		width:103%;
+	}
+	.menu,.menuContainer{
+        }
+        .menuTop{
+                width:1198px;
+                height:20%;
+        }
+        .menuLeft, .menuRight{
+        }
+        .menuLeft{
+                width:50%;
+        }
+        .menuRight{
+                width:49%;
+        }
+	.tabsImg{
+		max-height:480px;
+		max-width:360px;
+	}	
+        div#slider-two { width: 100%; }
+        div#slider-two > div { width: 60%; }
+	/* Tabs */
+        .ui-widget { font-size: 1.8em; }
+
+/* Smartphones (landscape) ----------- */
+@media only screen 
+and (min-width : 200px)
+and (max-width : 448px){
+/* Styles */
+
+        body {
+                font-size: 13px;
+        }
+	h1{
+		line-height:32px;
+		font-size:	38px;
+	}
+	h1 small{
+		display:none;
+	}
+	h2{	
+		font-size:25px;
+		line-height:10px;
+	}
+	.container{
+		margin-top: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 100%;
+	}
+	.top{
+		height: 80px;
+	}
+	.ff{
+		height: 80px;
+		width: 60%;
+	}
+	.login_button{
+		height:80px;
+		width: 20%;
+		float:right;
+		border-left:1px solid #000;
+	}
+	.login_status{
+		height:80px;
+		width: 20%;
+		float:right;
+		font-size:8px;
+	}
+	.dialog_link{
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: auto;
+		margin-bottom: auto;
+		text-decoration:none;
+		font-size:25px;
+		float:right;
+		padding:12px 0% 0% 0%;/**上右下左**/
+		width:100%;
+		max-height:100%;
+		height:100%;
+	}
+	.bottom{
+		height: 400px;	
+	}
+
+	.mb-scroll{width: 100%;}
+	.tabsImg{
+		max-height:160px;
+		max-width:120px;
+	}	
+}
+
+
+/* Middle  ----------- */
+/* Smartphones (landscape) ----------- */
+@media only screen 
+and (min-width : 448px)
+and (max-width : 700px){
+/* Styles */
+	
+        body {
+        }
+	h1{
+		font-size:	45px;
+		line-height:32px;
+	}
+	h1 small{
+		display:none;
+	}
+	h2{	
+		font-size:26px;
+	}
+	.container{
+		margin-top: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 100%;
+	}
+	.top{
+		height: 80px;
+	}
+	.ff{
+		height: 80px;
+		width: 60%;
+	}
+	.login_button{
+		height:80px;
+		width: 20%;
+		float:right;
+		border-left:1px solid #000;
+		padding:0;
+	}
+	.login_status{
+		height:80px;
+		width: 30%;
+		float:right;
+	}
+	.dialog_link{
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: auto;
+		margin-bottom: auto;
+		text-decoration:none;
+		font-size:40px;
+		width:100%;
+		float:right;
+		max-height:100%;
+		height:100%;
+		padding:12px 0% 0% 0%;/**上右下左**/
+	}
+	.bottom{
+		height: 500px;	
+	}
+	.mb-scroll{width: 100%;}
+	.tabsImg{
+		max-height:240px;
+		max-width:180px;
+	}	
+
+}
+/* Middle  ----------- */
+/* Smartphones (landscape) ----------- */
+@media only screen 
+and (min-width : 701px)
+and (max-width : 1200px){
+/* Styles */
+	
+	h1{
+		line-height:28px;
+		font-size:56px;
+	}
+	h1 small{
+		line-height:55px;
+		display:block;
+	}
+	h2{	
+		font-size:36px;
+	}
+	.container{
+		margin-top: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 100%;
+	}
+	.top{
+		height:100px;
+	}
+	.ff{
+		height: 100px;
+		width: 60%;
+	}
+	.login_button{
+		height:100px;
+		width: 20%;
+		float:right;
+		border-left:1px solid #000;
+	}
+	.login_status{
+		height:100px;
+		width: 30%;
+		float:right;
+	}
+	.dialog_link{
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: auto;
+		margin-bottom: auto;
+		text-decoration:none;
+		font-size:64px;
+		width:100%;
+		float:right;
+		max-height:100%;
+		height:100%;
+		padding:12px 0% 0% 0%;/**上右下左**/
+	}
+	.bottom{
+		height: 500px;	
+	}
+	.mb-scroll{width: 100%;}
+	.tabsImg{
+		max-height:320px;
+		max-width:240px;
+	}	
+}
+

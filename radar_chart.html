@@ -1,0 +1,297 @@
+﻿<html>
+<head>
+    <script src="js/jquery-1.7.2.min.js" ></script>    
+    <script src="js/RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="js/RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="js/RGraph/libraries/RGraph.common.tooltips.js" ></script>
+    <script src="js/RGraph/libraries/RGraph.common.effects.js" ></script>
+    <script src="js/RGraph/libraries/RGraph.radar.js" ></script>
+	<link rel="stylesheet" href="css/radar_chart.css">
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
+    <title>An animated Radar chart</title>
+	<script>
+	function updateRecord(){
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  			xmlhttp=new XMLHttpRequest();
+  		}
+		else{// code for IE6, IE5
+  			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  		}
+		xmlhttp.onreadystatechange=function(){
+			if(xmlhttp.readyState==4 && xmlhttp.status==200){
+				localStorage.radar=xmlhttp.responseText;
+			}
+		}
+		//xmlhttp.open("GET","http://jhs.jelly9.net/offline/radar.php",true);
+		xmlhttp.open("GET","radar.php",true);
+		xmlhttp.send();
+	}
+	updateRecord();
+	</script>
+</head>
+<body>
+	<div id="top">
+		<p id="user_name">體適能雷達圖</p>
+	</div>
+	<div>
+		<fieldset id="radarchart">
+			<legend>
+				<p>常模比較圖</p>
+			</legend>
+			<canvas id="cvs" width="450" height="400">[No canvas support]</canvas>			
+			<div id="licence">
+				<p style="font-size: 12px;"><a href="http://www.rgraph.net/">Chart by RGraph</a></p>
+			<div>
+		</fieldset>
+		
+		<fieldset id="past_records">
+			<legend	id="records">
+				<p>觀看過去的記錄</p>
+			</legend>
+		</fieldset>
+		
+		<fieldset id="new_records">
+			<legend id="record_new">
+				<p>觀看新增的記錄</p>
+			</legend>
+		</fieldset>
+	</div>
+	<script>
+	// Print User Name
+	if (localStorage.username != null){
+		$("#user_name").html(localStorage.username + "的" + $("#user_name").text());
+	}
+	// RGraph Chart
+	var data = [100,100,100,100,100];
+	var radar2 = new RGraph.Radar('cvs', data);
+	radar2.Set('chart.labels', ['心肺耐力', '上肢耐力', '下肢肌耐力','平衡感','柔軟度']);
+	radar2.Set('chart.tooltips', ['展示用數值', '展示用數值', '展示用數值','展示用數值','展示用數值']);
+	radar2.Set('chart.background.circles.poly', true);
+	radar2.Set('chart.background.circles.spacing', 30);
+	radar2.Set('chart.colors', ['rgba(255,0,0,0.25)','rgba(255,255,0,0.25)']);
+	radar2.Set('chart.axes.color', 'transparent');
+	radar2.Set('chart.highlights', true);
+	radar2.Set('chart.strokestyle', ['red','black']);
+	RGraph.Effects.Radar.Grow(radar2);
+	
+	//function record_read(record){
+		if(localStorage.radar != null)
+		{
+			var obj = jQuery.parseJSON(localStorage.radar);
+			var len_A = 100;
+			var len_B = 100;
+			var len_DH = 100;
+			var len_EOL= 100;
+			var len_FR = 100;
+			for(i=1; i<=obj.record.length; i++)
+			{
+				/*
+				var num = obj.record.length-i;
+				var record = obj.record[num];
+				$("#cvs").before("<p id='rid" + (i-1) + "' num='" + (i-1) + "'>" + record.time + "</p>");
+				$("#rid"+(i-1)).live("click", function(){
+					cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
+					radar2.data = [[record.A, record.B, record.DH, record.EOL, record.FR]];
+					RGraph.Effects.Radar.Grow(radar2);
+				*/
+				$("#records").after("<button id='rid" + (i-1) + "' num='" + (i-1) + "'>" + obj.record[i-1].time + "</button>");
+				$("#rid"+(i-1)).live("click", function(){
+					cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
+					// 比對常模
+					if ( obj.norm[0].sport == "A" )
+					{
+						if ( parseFloat(obj.record[$(this).attr('num')].A ) >= obj.norm[0].r90 )
+							len_A = 85;
+						else if ( parseFloat(obj.record[$(this).attr('num')].A ) >= obj.norm[0].r70 )
+							len_A = 68;
+						else if ( parseFloat(obj.record[$(this).attr('num')].A ) >= obj.norm[0].r50 )
+							len_A = 51;
+						else if ( parseFloat(obj.record[$(this).attr('num')].A ) >= obj.norm[0].r30 )
+							len_A = 34;
+						else if ( parseFloat(obj.record[$(this).attr('num')].A ) >= obj.norm[0].r10 )
+							len_A = 17;
+						else
+							len_A = 0;
+					}
+					if ( obj.norm[1].sport == "B" )
+					{
+						if ( parseFloat(obj.record[$(this).attr('num')].B ) >= obj.norm[1].r90 )
+							len_B = 85;
+						else if ( parseFloat(obj.record[$(this).attr('num')].B ) >= obj.norm[1].r70 )
+							len_B = 68;
+						else if ( parseFloat(obj.record[$(this).attr('num')].B ) >= obj.norm[1].r50 )
+							len_B = 51;
+						else if ( parseFloat(obj.record[$(this).attr('num')].B ) >= obj.norm[1].r30 )
+							len_B = 34;
+						else if ( parseFloat(obj.record[$(this).attr('num')].B ) >= obj.norm[1].r10 )
+							len_B = 17;
+						else
+							len_B = 0;
+					}
+					if ( obj.norm[2].sport == "DH" )
+					{
+						if ( parseFloat(obj.record[$(this).attr('num')].DH 	) >= obj.norm[2].r90 )
+							len_DH = 85;
+						else if ( parseFloat(obj.record[$(this).attr('num')].DH ) >= obj.norm[2].r70 )
+							len_DH = 68;
+						else if ( parseFloat(obj.record[$(this).attr('num')].DH ) >= obj.norm[2].r50 )
+							len_DH = 51;
+						else if ( parseFloat(obj.record[$(this).attr('num')].DH ) >= obj.norm[2].r30 )
+							len_DH = 34;
+						else if ( parseFloat(obj.record[$(this).attr('num')].DH ) >= obj.norm[2].r10 )
+							len_DH = 17;
+						else
+							len_DH = 0;
+					}
+					if ( obj.norm[3].sport == "EOL" )
+					{
+						if ( parseFloat(obj.record[$(this).attr('num')].EOL ) >= obj.norm[3].r90 )
+							len_EOL = 85;
+						else if ( parseFloat(obj.record[$(this).attr('num')].EOL ) >= obj.norm[3].r70 )
+							len_EOL = 68;
+						else if ( parseFloat(obj.record[$(this).attr('num')].EOL ) >= obj.norm[3].r50 )
+							len_EOL = 51;
+						else if ( parseFloat(obj.record[$(this).attr('num')].EOL ) >= obj.norm[3].r30 )
+							len_EOL = 34;
+						else if ( parseFloat(obj.record[$(this).attr('num')].EOL ) >= obj.norm[3].r10 )
+							len_EOL = 17;
+						else
+							len_EOL = 0;
+					}
+					if ( obj.norm[4].sport == "FR" )
+					{
+						if ( parseFloat(obj.record[$(this).attr('num')].FR ) >= obj.norm[4].r90 )
+							len_FR = 85;
+						else if ( parseFloat(obj.record[$(this).attr('num')].FR ) >= obj.norm[4].r70 )
+							len_FR = 68;
+						else if ( parseFloat(obj.record[$(this).attr('num')].FR ) >= obj.norm[4].r50 )
+							len_FR = 51;
+						else if ( parseFloat(obj.record[$(this).attr('num')].FR ) >= obj.norm[4].r30 )
+							len_FR = 34;
+						else if ( parseFloat(obj.record[$(this).attr('num')].FR ) >= obj.norm[4].r10 )
+							len_FR = 17;
+						else
+							len_FR = 0;
+					}
+					//radar2.data = [[obj.record[$(this).attr('num')].A, obj.record[$(this).attr('num')].B, obj.record[$(this).attr('num')].DH, obj.record[$(this).attr('num')].EOL, obj.record[$(this).attr('num')].FR]];
+					radar2.data = [[len_A, len_B, len_DH, len_EOL, len_FR]];
+					radar2.Set('chart.tooltips', [obj.record[$(this).attr('num')].A, obj.record[$(this).attr('num')].B, obj.record[$(this).attr('num')].DH, obj.record[$(this).attr('num')].EOL, obj.record[$(this).attr('num')].FR]);
+					RGraph.Effects.Radar.Grow(radar2);
+				});
+			}
+		}
+	//}
+	
+	//新紀錄
+	if(localStorage.radar_add != "")
+		{
+			var obj_new = jQuery.parseJSON(localStorage.radar_add);
+			var len_A = 100;
+			var len_B = 100;
+			var len_DH = 100;
+			var len_EOL= 100;
+			var len_FR = 100;
+			for(i=1; i<=obj_new.record.length; i++)
+			{
+				/*
+				var num = obj.record.length-i;
+				var record = obj.record[num];
+				$("#cvs").before("<p id='rid" + (i-1) + "' num='" + (i-1) + "'>" + record.time + "</p>");
+				$("#rid"+(i-1)).live("click", function(){
+					cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
+					radar2.data = [[record.A, record.B, record.DH, record.EOL, record.FR]];
+					RGraph.Effects.Radar.Grow(radar2);
+				*/
+				$("#record_new").after("<button id='new_rid" + (i-1) + "' num='" + (i-1) + "'>" + obj_new.record[i-1].time + "</button>");
+				$("#new_rid"+(i-1)).live("click", function(){
+					cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
+					// 比對常模
+					if ( obj.norm[0].sport == "A" )
+					{
+						if ( parseFloat(obj_new.record[$(this).attr('num')].A ) >= 	obj.norm[0].r90 )
+							len_A = 85;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].A ) >= obj.norm[0].r70 )
+							len_A = 68;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].A ) >= obj.norm[0].r50 )
+							len_A = 51;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].A ) >= obj.norm[0].r30 )
+							len_A = 34;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].A ) >= obj.norm[0].r10 )
+							len_A = 17;
+						else
+							len_A = 0;
+					}
+					if ( obj.norm[1].sport == "B" )
+					{
+						if ( parseFloat(obj_new.record[$(this).attr('num')].B ) >= obj.norm[1].r90 )
+							len_B = 85;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].B ) >= obj.norm[1].r70 )
+							len_B = 68;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].B ) >= obj.norm[1].r50 )
+							len_B = 51;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].B ) >= obj.norm[1].r30 )
+							len_B = 34;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].B ) >= obj.norm[1].r10 )
+							len_B = 17;
+						else
+							len_B = 0;
+					}
+					if ( obj.norm[2].sport == "DH" )
+					{
+						if ( parseFloat(obj_new.record[$(this).attr('num')].DH 	) >= obj.norm[2].r90 )
+							len_DH = 85;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].DH ) >= obj.norm[2].r70 )
+							len_DH = 68;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].DH ) >= obj.norm[2].r50 )
+							len_DH = 51;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].DH ) >= obj.norm[2].r30 )
+							len_DH = 34;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].DH ) >= obj.norm[2].r10 )
+							len_DH = 17;
+						else
+							len_DH = 0;
+					}
+					if ( obj.norm[3].sport == "EOL" )
+					{
+						if ( parseFloat(obj_new.record[$(this).attr('num')].EOL ) >= obj.norm[3].r90 )
+							len_EOL = 85;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].EOL ) >= obj.norm[3].r70 )
+							len_EOL = 68;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].EOL ) >= obj.norm[3].r50 )
+							len_EOL = 51;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].EOL ) >= obj.norm[3].r30 )
+							len_EOL = 34;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].EOL ) >= obj.norm[3].r10 )
+							len_EOL = 17;
+						else
+							len_EOL = 0;
+					}
+					if ( obj.norm[4].sport == "FR" )
+					{
+						if ( parseFloat(obj_new.record[$(this).attr('num')].FR ) >= obj.norm[4].r90 )
+							len_FR = 85;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].FR ) >= obj.norm[4].r70 )
+							len_FR = 68;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].FR ) >= obj.norm[4].r50 )
+							len_FR = 51;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].FR ) >= obj.norm[4].r30 )
+							len_FR = 34;
+						else if ( parseFloat(obj_new.record[$(this).attr('num')].FR ) >= obj.norm[4].r10 )
+							len_FR = 17;
+						else
+							len_FR = 0;
+					}
+					//radar2.data = [[obj_new.record[$(this).attr('num')].A, obj_new.record[$(this).attr('num')].B, obj_new.record[$(this).attr('num')].DH, obj_new.record[$(this).attr('num')].EOL, obj_new.record[$(this).attr('num')].FR]];
+					radar2.data = [[len_A, len_B, len_DH, len_EOL, len_FR]];
+					radar2.Set('chart.tooltips', [obj_new.record[$(this).attr('num')].A, obj_new.record[$(this).attr('num')].B, obj_new.record[$(this).attr('num')].DH, obj_new.record[$(this).attr('num')].EOL, obj_new.record[$(this).attr('num')].FR]);
+					RGraph.Effects.Radar.Grow(radar2);
+				});
+			}
+		}
+	</script>
+    
+	<div>
+		<button onclick="updateRecord()">更新記錄</button>
+	</div>
+</body>
+</html>

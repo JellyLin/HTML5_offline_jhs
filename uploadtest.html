@@ -1,0 +1,51 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+	<script src="js/jquery-1.7.2.min.js" ></script>
+
+        <script>
+/*				
+		$.ajax({
+		  type: "POST",
+		  url: "test.php",
+     		  data: jQuery.parseJSON(localStorage.radar_add)
+		}).done(function( msg ) {
+		//  alert( "Data Saved: " + msg );
+		  $("#return").after(msg);
+		});
+*/
+ $.ajax({
+                  type: "POST",
+                  url: "test.php",
+                  data: localStorage.radar_add,
+		  success : function(data, textStatus) {  
+			  //alert( "Data Saved: " + data + "");
+                	  //$("#return").after(msg);
+        	          $("#return").after("<p>"+data+"</p>");
+	                  if (textStatus == "success")
+                	  {
+        	            localStorage.radar_add = "";
+	                  }
+
+		  }
+		});
+/*.done(function( msg ) {
+                  alert( "Data Saved: " + msg + "");
+                  //$("#return").after(msg);
+		  $("#return").after("<p>"+msg+"</p>");
+		  if (msg == "done")
+		  {
+		    localStorage.radar_add = "";
+		  }
+                });*/
+	</script>
+
+
+</head>
+<body>
+<p>Return Data</p><br/>
+<div id="return">
+</div>
+<div id="json_return">
+</div>
+</body>
+</html>

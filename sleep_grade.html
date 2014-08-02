@@ -1,0 +1,155 @@
+<html>
+<head>
+	<script src="../js/jquery-1.7.2.min.js"></script>
+	<script src="js/highcharts.js"></script>
+	<script src="js/exporting.js"></script>
+
+	<script type="text/javascript">
+		var chartDIV;
+		var score=[];
+		$(document).ready(function($){
+			if($('.sleepDateY').val() > 0 ){
+				var startRecordY = $('.sleepDateY').val();
+			}
+			if($('.sleepDateM').val() > 0 ){
+				var startRecordM = $('.sleepDateM').val();
+			}
+			if($('.sleepDateD').val() > 0 ){
+				var startRecordD = $('.sleepDateD').val();
+			}
+			if($('.rowCount').val() > 0 ){
+				var rowCount = $('.rowCount').val();
+			}
+			
+			for (i=0;i<rowCount;i++)
+			{
+			
+				if($('#scoreDIV'+i).val() >0){
+					score.push($('#scoreDIV'+i).val() - 0);
+				}
+				else{
+					score.push(0 - 0);
+				}
+				
+			}
+
+			chartDIV = new Highcharts.Chart({
+							chart: {
+								renderTo: 'SleepScoreDIV',
+								zoomType: 'x',
+								spacingRight: 20,
+								backgroundColor : "#edf4e2"
+							},
+							title: {
+								text: '眤何痸珇借だ计羆凝'
+							},
+							xAxis: {
+								type: 'datetime',
+								maxZoom: 14 * 24 * 3600000, // fourteen days
+								title: {
+									text: null
+								}
+							},
+							yAxis: {
+								title: {
+									text: '何痸珇借だ计'
+								},
+								min: 0,
+								startOnTick: false,
+								showFirstLabel: false
+							},
+							tooltip: {
+								shared: true					
+							},
+							legend: {
+								enabled: false
+							},
+							plotOptions: {
+								area: {
+									fillColor: {
+										linearGradient: [0, 0, 0, 300],
+										stops: [
+											[0, Highcharts.getOptions().colors[0]],
+											[1, 'rgba(2,0,0,0)']
+										]
+									},
+									lineWidth: 1,
+									marker: {
+										enabled: false,
+										states: {
+											hover: {
+												enabled: true,
+												radius: 5
+											}
+										}
+									},
+									shadow: false,
+									states: {
+										hover: {
+											lineWidth: 1						
+										}
+									}
+								}
+							},
+						
+							series: [{
+								type: 'area',
+								name: 'だ计',
+								pointInterval: 24 * 3600 * 1000,
+								pointStart: Date.UTC(startRecordY - 0, startRecordM - 0, startRecordD - 0),
+								data: score
+							}]
+						});
+						
+			
+		});
+		</script>
+
+	<!--?php
+	include ("logic_hss/DB_link.php");
+	global $user;
+	$UID=$user->uid;
+	$USERNAME=$user->name;
+	try{
+		$check = $dbh->prepare('select * from qualityscore where uid = :uid ORDER BY date asc');
+		$check->bindParam(':uid',$UID);
+		$check->execute();
+		$count = $check->rowCount();
+		$date=0;
+		$i= 0;
+		$firstDate = 0;
+		while($checkresult = $check->fetch()){
+			
+			$Score = $checkresult['sScore'];
+			echo '<input type="hidden" id="scoreDIV'.$i.'" value="'.$Score.'">';
+			$date = $checkresult['date'];
+			if($i == 0){
+				$firstDate = $date;
+			}
+			$i++;
+		}
+		
+		list($Y,$M,$D) =  preg_split("/-/", $firstDate);
+
+		echo '<input type="hidden" class="sleepDateY" value="'.$Y.'">';
+		echo '<input type="hidden" class="sleepDateM" value="'.$M.'">';
+		echo '<input type="hidden" class="sleepDateD" value="'.$D.'">';
+		echo '<input type="hidden" class="rowCount" value="'.$count.'">';
+		
+	}
+	catch (PDOException $e){
+		print "Error!: " . $e->getMessage() . "<br/>";
+		die();
+	}
+
+?-->
+</head>
+<body>
+<!--
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<script src="http://code.highcharts.com/modules/exporting.js"></script>
+-->	
+	
+	<div id="SleepScoreDIV" class="SleepScoreDIV"></div>
+</body>
+</html>
